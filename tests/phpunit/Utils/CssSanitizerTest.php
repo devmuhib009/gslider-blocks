@@ -19,6 +19,13 @@
 require_once dirname( __DIR__ ) . '/bootstrap.php';
 require_once ABSPATH . 'includes/Utils/CssSanitizer.php';
 
+set_error_handler(
+	static function ( $severity, $message, $file, $line ) {
+		fwrite( STDERR, "FAIL: PHP warning {$message} in {$file}:{$line}\n" );
+		exit( 1 );
+	}
+);
+
 use GSlider\Utils\CssSanitizer;
 
 /**
@@ -90,6 +97,7 @@ class CssSanitizerTest {
 
 		foreach ( CssSanitizer::PATTERNS as $pattern ) {
 			$this->assert_true( is_string( $pattern ) && '' !== $pattern, 'CssSanitizer pattern is a non-empty string' );
+			$this->assert_true( false !== @preg_match( $pattern, '' ), 'CssSanitizer pattern compiles as valid PCRE regex: ' . $pattern );
 		}
 	}
 
